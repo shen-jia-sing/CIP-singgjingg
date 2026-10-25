@@ -15,13 +15,13 @@ Postman ──> API GATEWAY :5000  (EC2 #1)  JWT + role check
 
 | Instance | Public IP | Runs |
 |---|---|---|
-| EC2-1-Gateway-Reg-Login | `<EC2-1-PUBLIC-IP>` | API Gateway, Registration, Login |
-| EC2-2-Admin | `<EC2-2-PUBLIC-IP>` | Admin |
-| EC2-3-User | `<EC2-3-PUBLIC-IP>` | User |
+| EC2-1-Gateway-Reg-Login | `13.218.230.98` | API Gateway, Registration, Login |
+| EC2-2-Admin | `44.223.0.208` | Admin |
+| EC2-3-User | `34.234.96.92` | User |
 
 Security group inbound: 22 and 5000–5004 from 0.0.0.0/0.
 
-## API (always call through the gateway: `http://<EC2-1-PUBLIC-IP>:5000`)
+## API (always call through the gateway: `http://13.218.230.98:5000`)
 
 | Method | Path | Auth | Body |
 |---|---|---|---|
