@@ -1,0 +1,110 @@
+{
+  "info": {
+    "name": "Central Identity Platform - EC2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "gatewayUrl", "value": "http://<EC2-1-PUBLIC-IP>:5000" },
+    { "key": "adminToken", "value": "" },
+    { "key": "userToken", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Task 5.1a - Register User",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Kasing User\",\n  \"email\": \"user1@test.com\",\n  \"password\": \"123456\",\n  \"phone\": \"012345678\",\n  \"role\": \"user\"\n}" },
+        "url": "{{gatewayUrl}}/register/userregister"
+      }
+    },
+    {
+      "name": "Task 5.1b - Register Admin",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Kasing Admin\",\n  \"email\": \"admin1@test.com\",\n  \"password\": \"123456\",\n  \"phone\": \"098765432\",\n  \"role\": \"admin\"\n}" },
+        "url": "{{gatewayUrl}}/register/userregister"
+      }
+    },
+    {
+      "name": "Task 5.2 - Same Email Again (should 409)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Kasing User\",\n  \"email\": \"user1@test.com\",\n  \"password\": \"123456\",\n  \"phone\": \"012345678\",\n  \"role\": \"user\"\n}" },
+        "url": "{{gatewayUrl}}/register/userregister"
+      }
+    },
+    {
+      "name": "Task 6.1 - Login as Admin (saves adminToken)",
+      "event": [
+        {
+          "listen": "test",
+          "script": { "exec": ["const body = pm.response.json();", "if (body.token) pm.collectionVariables.set('adminToken', body.token);"] }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"admin1@test.com\",\n  \"password\": \"123456\",\n  \"role\": \"admin\"\n}" },
+        "url": "{{gatewayUrl}}/auth/login"
+      }
+    },
+    {
+      "name": "Task 6.2 - Login as User (saves userToken)",
+      "event": [
+        {
+          "listen": "test",
+          "script": { "exec": ["const body = pm.response.json();", "if (body.token) pm.collectionVariables.set('userToken', body.token);"] }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"email\": \"user1@test.com\",\n  \"password\": \"123456\",\n  \"role\": \"user\"\n}" },
+        "url": "{{gatewayUrl}}/auth/login"
+      }
+    },
+    {
+      "name": "Task 7.1 - Admin JWT -> viewalluser (200)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": "{{gatewayUrl}}/admin/viewalluser"
+      }
+    },
+    {
+      "name": "Task 7.2 - User JWT -> updateprofile (200)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{userToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Kasing Updated\",\n  \"phone\": \"0111222333\"\n}" },
+        "url": "{{gatewayUrl}}/user/updateprofile"
+      }
+    },
+    {
+      "name": "Task 8.1 - Admin JWT -> updateprofile (403)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{adminToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Should Fail\",\n  \"phone\": \"000\"\n}" },
+        "url": "{{gatewayUrl}}/user/updateprofile"
+      }
+    },
+    {
+      "name": "Task 8.2 - User JWT -> viewalluser (403)",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+        "url": "{{gatewayUrl}}/admin/viewalluser"
+      }
+    }
+  ]
+}
